@@ -1,0 +1,43 @@
+Database:
+
+{
+
+	"project-temp" : {
+
+		"DeviceName" : {
+			"config" : {
+				sleepSeconds : 30
+				sleepMode : 40
+			},
+			"readings" : {
+
+				"s1" : "Apple"
+				"s1t" : "20º"
+				"s2" : "Grape"
+				"s2t" : "33º"
+
+			}
+
+		},
+
+		"DeviceName2" : {
+			"config" : {
+				sleepSeconds : 20
+				sleepMode : 30
+			},
+			"readings" : {
+
+				"s1" : "Orange"
+				"s1t" : "10º"
+				"s2" : "Pineaple"
+				"s2t" : "23º"
+
+			}
+
+		},
+
+	}
+
+}
+
+	
