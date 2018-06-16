@@ -1,12 +1,12 @@
 #include "NeutronMoistureSensor.h"
 
-NeutronMoistureSensor::NeutronMoistureSensor(int pin): NeutronSensor(pin) {};
+NeutronMoistureSensor::NeutronMoistureSensor(int pin, String name): NeutronSensor(pin, name) {};
 
-double NeutronMoistureSensor::readSensor() {
+String NeutronMoistureSensor::readSensor() {
     double volts = analogRead(pin);
-    return volts;
+    return String(volts);
 };
 
 NeutronMoistureSensor::~NeutronMoistureSensor() {
-    
+
 }

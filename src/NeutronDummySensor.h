@@ -7,9 +7,9 @@
 
 class NeutronDummySensor : public NeutronSensor {
     public:
-        NeutronDummySensor(int pin);
+        NeutronDummySensor(int pin, String name);
         ~NeutronDummySensor();
-        double readSensor();
+        String readSensor();
 };
 
 #endif

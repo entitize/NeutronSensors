@@ -1,6 +1,6 @@
 #include "NeutronTemperatureSensor.h"
 
-NeutronTemperatureSensor::NeutronTemperatureSensor(int pin): NeutronSensor(pin) {
+NeutronTemperatureSensor::NeutronTemperatureSensor(int pin, String name): NeutronSensor(pin, name) {
     oneWire = new OneWire(pin);
     sensor = new DallasTemperature(oneWire);
 
@@ -12,7 +12,7 @@ NeutronTemperatureSensor::~NeutronTemperatureSensor() {
     delete sensor;
 };
 
-double NeutronTemperatureSensor::readSensor() {
+String NeutronTemperatureSensor::readSensor() {
 
     sensor->requestTemperatures();
     double reading = sensor->getTempCByIndex(0);
@@ -23,5 +23,5 @@ double NeutronTemperatureSensor::readSensor() {
         reading = sensor->getTempCByIndex(0);
         attempts += 1;
     }
-    return reading;
+    return String(reading);
 };

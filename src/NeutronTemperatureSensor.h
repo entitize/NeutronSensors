@@ -5,9 +5,9 @@
 
 class NeutronTemperatureSensor : public NeutronSensor {
     public:
-        NeutronTemperatureSensor(int pin);
+        NeutronTemperatureSensor(int pin, String name);
         ~NeutronTemperatureSensor();
-        double readSensor();
+        String readSensor();
 
         OneWire* oneWire;
         DallasTemperature* sensor;

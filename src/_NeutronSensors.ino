@@ -7,15 +7,19 @@
  */
 #include "Particle.h"
 PRODUCT_ID(5694);
-PRODUCT_VERSION(4);
+PRODUCT_VERSION(5);
 
 #include "config.h"
 
 #include "SparkJson.h"
 
+// #include "Adafruit_BMP280/Adafruit_Sensor.h"
+// #include "Adafruit_BMP280/Adafruit_BMP280.h"
+
 #include "NeutronTemperatureSensor.h"
 #include "NeutronMoistureSensor.h"
 #include "NeutronDummySensor.h"
+#include "NeutronBMP280Sensor.h"
 
 NeutronSensor* sensors[MAX_SENSORS];
 
@@ -26,6 +30,8 @@ bool recievedConfigUpdate, requestedConfigUpdate = false;
 int DEVICE_SEED = random(100000,999999);
 
 void receivedConfigHandler(const char *topic, const char *data);
+
+STARTUP(WiFi.selectAntenna(ANT_EXTERNAL));
 
 void setup() {
 
@@ -78,26 +84,28 @@ void readSensorsAndSendData() {
         return;
     }
 
-    //Turn on power pin
-    digitalWrite(D0, HIGH);
+    //Delay for sensors to warmup after being applied power
+    delay(2000);
 
     StaticJsonBuffer<1024> jsonBuffer;
     JsonObject& root = jsonBuffer.createObject();
-    JsonArray& readingsBuffer = jsonBuffer.createArray();
 
     for (int i = 0; i < NeutronSensor::totalSensors; i++) {
-        double reading = sensors[i]->readSensor();
-        readingsBuffer.add(reading);
+        String reading = sensors[i]->readSensor();
+
+        //char __reading[sizeof(reading)];
+        //reading.toCharArray(__reading, sizeof(__reading));
+
+        root[sensors[i]->name] = reading.c_str();
+
     }
 
-    root["readings"] = readingsBuffer;
-
-    char dataBuffer[1024];
+    char dataBuffer[1000];
     root.printTo(dataBuffer, sizeof(dataBuffer));
     Particle.publish(String(PUBLISH_READINGS_EVENT) + String(DEVICE_SEED), dataBuffer, PRIVATE, WITH_ACK);
 
     //Turn off power pin
-    digitalWrite(D0, LOW);
+    digitalWrite(POWER_PIN, LOW);
 
 }
 void runSleepCycle() {
@@ -152,6 +160,9 @@ void receivedConfigHandler(const char *topic, const char *data) {
         sleepSeconds = atoi(root["settings"]["sleepSeconds"]);
         sleepMode = atoi(root["settings"]["sleepMode"]);
 
+        //Turn on power pin
+        digitalWrite(POWER_PIN, HIGH);
+
         for (int i = 1; i < MAX_SENSORS + 1; i++) {
 
             String sensorKey = "s" + String(i);
@@ -160,15 +171,19 @@ void receivedConfigHandler(const char *topic, const char *data) {
 
                 int type = atoi(root[sensorKey]["type"]);
                 int pin = atoi(root[sensorKey]["pin"]);
+                const char* nameArr = root[sensorKey]["name"];
+                String name(nameArr);
 
-                if (type == SENSOR_TYPE_DUMMY) {
-                    sensors[NeutronSensor::totalSensors] = new NeutronDummySensor(pin);
-                } else if (type == SENSOR_TYPE_TEMPERATURE) {
-                    sensors[NeutronSensor::totalSensors] = new NeutronTemperatureSensor(pin);
-                } else if (type == SENSOR_TYPE_MOISTURE) {
-                    sensors[NeutronSensor::totalSensors] = new NeutronMoistureSensor(pin);
-                } else if (type == SENSOR_TYPE_LIGHT) {
-                    sensors[NeutronSensor::totalSensors] = new NeutronMoistureSensor(pin);
+                if (type == Z_SENSOR_TYPE_DUMMY) {
+                    sensors[NeutronSensor::totalSensors] = new NeutronDummySensor(pin, name);
+                } else if (type == Z_SENSOR_TYPE_TEMPERATURE) {
+                    sensors[NeutronSensor::totalSensors] = new NeutronTemperatureSensor(pin, name);
+                } else if (type == Z_SENSOR_TYPE_MOISTURE) {
+                    sensors[NeutronSensor::totalSensors] = new NeutronMoistureSensor(pin, name);
+                } else if (type == Z_SENSOR_TYPE_LIGHT) {
+                    sensors[NeutronSensor::totalSensors] = new NeutronMoistureSensor(pin, name);
+                } else if (type == Z_SENSOR_TYPE_BMP) {
+                    sensors[NeutronSensor::totalSensors] = new NeutronBMP280Sensor(name);
                 }
 
             }

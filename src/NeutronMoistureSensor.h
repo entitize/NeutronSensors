@@ -5,9 +5,9 @@
 
 class NeutronMoistureSensor : public NeutronSensor {
     public:
-        NeutronMoistureSensor(int pin);
+        NeutronMoistureSensor(int pin, String name);
         ~NeutronMoistureSensor();
-        double readSensor();
+        String readSensor();
 };
 
 #endif
