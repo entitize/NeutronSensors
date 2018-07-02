@@ -9,7 +9,7 @@ class NeutronBMP280Sensor : public NeutronSensor {
         ~NeutronBMP280Sensor();
         String readSensor();
 
-        Adafruit_BMP280* bmp;
+        Adafruit_BMP280* sensor;
 };
 
 #endif

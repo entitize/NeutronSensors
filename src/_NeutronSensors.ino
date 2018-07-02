@@ -13,13 +13,12 @@ PRODUCT_VERSION(5);
 
 #include "SparkJson.h"
 
-// #include "Adafruit_BMP280/Adafruit_Sensor.h"
-// #include "Adafruit_BMP280/Adafruit_BMP280.h"
-
+#include "NeutronDummySensor.h"
 #include "NeutronTemperatureSensor.h"
 #include "NeutronMoistureSensor.h"
-#include "NeutronDummySensor.h"
 #include "NeutronBMP280Sensor.h"
+#include "NeutronUVSensor.h"
+#include "NeutronVH400Sensor.h"
 
 NeutronSensor* sensors[MAX_SENSORS];
 
@@ -37,7 +36,7 @@ void setup() {
 
     Serial.begin(9600);
 
-    pinMode(D0, OUTPUT);
+    pinMode(POWER_PIN, OUTPUT);
 
     //Set to Pacific Time Zone
     Time.zone(-7);
@@ -84,20 +83,13 @@ void readSensorsAndSendData() {
         return;
     }
 
-    //Delay for sensors to warmup after being applied power
-    delay(2000);
-
     StaticJsonBuffer<1024> jsonBuffer;
     JsonObject& root = jsonBuffer.createObject();
 
+    //Adding sensor readings to JSON object
     for (int i = 0; i < NeutronSensor::totalSensors; i++) {
         String reading = sensors[i]->readSensor();
-
-        //char __reading[sizeof(reading)];
-        //reading.toCharArray(__reading, sizeof(__reading));
-
         root[sensors[i]->name] = reading.c_str();
-
     }
 
     char dataBuffer[1000];
@@ -160,8 +152,9 @@ void receivedConfigHandler(const char *topic, const char *data) {
         sleepSeconds = atoi(root["settings"]["sleepSeconds"]);
         sleepMode = atoi(root["settings"]["sleepMode"]);
 
-        //Turn on power pin
+        //Turn on power pin: delay is required between turning power on and activating sensors
         digitalWrite(POWER_PIN, HIGH);
+        delay(3000);
 
         for (int i = 1; i < MAX_SENSORS + 1; i++) {
 
@@ -184,6 +177,10 @@ void receivedConfigHandler(const char *topic, const char *data) {
                     sensors[NeutronSensor::totalSensors] = new NeutronMoistureSensor(pin, name);
                 } else if (type == Z_SENSOR_TYPE_BMP) {
                     sensors[NeutronSensor::totalSensors] = new NeutronBMP280Sensor(name);
+                } else if (type == Z_SENSOR_TYPE_UV) {
+                    sensors[NeutronSensor::totalSensors] = new NeutronUVSensor(name);
+                } else if (type == Z_SENSOR_TYPE_VH400) {
+                    sensors[NeutronSensor::totalSensors] = new NeutronVH400Sensor(pin, name);
                 }
 
             }
