@@ -13,14 +13,7 @@ PRODUCT_VERSION(5);
 
 #include "SparkJson.h"
 
-#include "NeutronDummySensor.h"
-#include "NeutronAnalogSensor.h"
-#include "NeutronDigitalSensor.h"
-#include "NeutronDallasSensor.h"
-#include "NeutronBMP280Sensor.h"
-#include "NeutronUVSensor.h"
-#include "NeutronVH400Sensor.h"
-#include "NeutronTherm200Sensor.h"
+#include "NeutronSensor.h"
 
 NeutronSensor* sensors[MAX_SENSORS];
 
@@ -188,6 +181,8 @@ void receivedConfigHandler(const char *topic, const char *data) {
                     sensors[NeutronSensor::totalSensors] = new NeutronVH400Sensor(pin, name);
                 } else if (type == Z_SENSOR_TYPE_THERM200) {
                     sensors[NeutronSensor::totalSensors] = new NeutronTherm200Sensor(pin, name);
+                } else if (type == Z_SENSOR_TYPE_TMP36) {
+                    sensors[NeutronSensor::totalSensors] = new NeutronTMP36Sensor(pin, name);
                 }
 
             }

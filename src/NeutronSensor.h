@@ -34,4 +34,14 @@ class NeutronSensor
 
 };
 
+#include "NeutronDummySensor.h"
+#include "NeutronAnalogSensor.h"
+#include "NeutronDigitalSensor.h"
+#include "NeutronDallasSensor.h"
+#include "NeutronBMP280Sensor.h"
+#include "NeutronUVSensor.h"
+#include "NeutronVH400Sensor.h"
+#include "NeutronTherm200Sensor.h"
+#include "NeutronTMP36Sensor.h"
+
 #endif
