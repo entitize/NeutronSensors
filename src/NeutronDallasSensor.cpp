@@ -1,18 +1,18 @@
-#include "NeutronTemperatureSensor.h"
+#include "NeutronDallasSensor.h"
 
-NeutronTemperatureSensor::NeutronTemperatureSensor(int pin, String name): NeutronSensor(pin, name) {
+NeutronDallasSensor::NeutronDallasSensor(int pin, String name): NeutronSensor(pin, name) {
     oneWire = new OneWire(pin);
     sensor = new DallasTemperature(oneWire);
 
     sensor->begin();
 };
 
-NeutronTemperatureSensor::~NeutronTemperatureSensor() {
+NeutronDallasSensor::~NeutronDallasSensor() {
     delete oneWire;
     delete sensor;
 };
 
-String NeutronTemperatureSensor::readSensor() {
+String NeutronDallasSensor::readSensor() {
 
     sensor->requestTemperatures();
     double reading = sensor->getTempCByIndex(0);

@@ -14,11 +14,13 @@ PRODUCT_VERSION(5);
 #include "SparkJson.h"
 
 #include "NeutronDummySensor.h"
-#include "NeutronTemperatureSensor.h"
-#include "NeutronMoistureSensor.h"
+#include "NeutronAnalogSensor.h"
+#include "NeutronDigitalSensor.h"
+#include "NeutronDallasSensor.h"
 #include "NeutronBMP280Sensor.h"
 #include "NeutronUVSensor.h"
 #include "NeutronVH400Sensor.h"
+#include "NeutronTherm200Sensor.h"
 
 NeutronSensor* sensors[MAX_SENSORS];
 
@@ -30,7 +32,7 @@ int DEVICE_SEED = random(100000,999999);
 
 void receivedConfigHandler(const char *topic, const char *data);
 
-STARTUP(WiFi.selectAntenna(ANT_EXTERNAL));
+//STARTUP(WiFi.selectAntenna(ANT_EXTERNAL));
 
 void setup() {
 
@@ -83,18 +85,15 @@ void readSensorsAndSendData() {
         return;
     }
 
-    StaticJsonBuffer<1024> jsonBuffer;
-    JsonObject& root = jsonBuffer.createObject();
+    String readings = "";
 
     //Adding sensor readings to JSON object
     for (int i = 0; i < NeutronSensor::totalSensors; i++) {
         String reading = sensors[i]->readSensor();
-        root[sensors[i]->name] = reading.c_str();
+        readings += reading + ";";
     }
 
-    char dataBuffer[1000];
-    root.printTo(dataBuffer, sizeof(dataBuffer));
-    Particle.publish(String(PUBLISH_READINGS_EVENT) + String(DEVICE_SEED), dataBuffer, PRIVATE, WITH_ACK);
+    Particle.publish(String(PUBLISH_READINGS_EVENT) + String(DEVICE_SEED), readings, PRIVATE, WITH_ACK);
 
     //Turn off power pin
     digitalWrite(POWER_PIN, LOW);
@@ -103,6 +102,12 @@ void readSensorsAndSendData() {
 void runSleepCycle() {
 
     RGB.control(false);
+
+    Serial.print("Sleep Seconds: ");
+    Serial.println(sleepSeconds);
+
+    Serial.print("Sleep Mode: ");
+    Serial.println(sleepMode);
 
     if (photonIsInStandby()) {
 
@@ -142,7 +147,7 @@ void receivedConfigHandler(const char *topic, const char *data) {
 
     deleteSensors();
 
-    //Parse JSON containing configuration
+    //Parse JSON containing configuration data
 	StaticJsonBuffer<2048> jsonBuffer;
 	char *mutableCopy = strdup(data);
 	JsonObject& root = jsonBuffer.parseObject(mutableCopy);
@@ -169,18 +174,20 @@ void receivedConfigHandler(const char *topic, const char *data) {
 
                 if (type == Z_SENSOR_TYPE_DUMMY) {
                     sensors[NeutronSensor::totalSensors] = new NeutronDummySensor(pin, name);
-                } else if (type == Z_SENSOR_TYPE_TEMPERATURE) {
-                    sensors[NeutronSensor::totalSensors] = new NeutronTemperatureSensor(pin, name);
-                } else if (type == Z_SENSOR_TYPE_MOISTURE) {
-                    sensors[NeutronSensor::totalSensors] = new NeutronMoistureSensor(pin, name);
-                } else if (type == Z_SENSOR_TYPE_LIGHT) {
-                    sensors[NeutronSensor::totalSensors] = new NeutronMoistureSensor(pin, name);
+                } else if (type == Z_SENSOR_TYPE_ANALOG) {
+                    sensors[NeutronSensor::totalSensors] = new NeutronAnalogSensor(pin, name);
+                } else if (type == Z_SENSOR_TYPE_DIGITAL) {
+                    sensors[NeutronSensor::totalSensors] = new NeutronDummySensor(pin, name);
+                } else if (type == Z_SENSOR_TYPE_DALLAS) {
+                    sensors[NeutronSensor::totalSensors] = new NeutronDallasSensor(pin, name);
                 } else if (type == Z_SENSOR_TYPE_BMP) {
                     sensors[NeutronSensor::totalSensors] = new NeutronBMP280Sensor(name);
                 } else if (type == Z_SENSOR_TYPE_UV) {
                     sensors[NeutronSensor::totalSensors] = new NeutronUVSensor(name);
                 } else if (type == Z_SENSOR_TYPE_VH400) {
                     sensors[NeutronSensor::totalSensors] = new NeutronVH400Sensor(pin, name);
+                } else if (type == Z_SENSOR_TYPE_THERM200) {
+                    sensors[NeutronSensor::totalSensors] = new NeutronTherm200Sensor(pin, name);
                 }
 
             }

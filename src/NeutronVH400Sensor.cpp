@@ -11,7 +11,7 @@ NeutronVH400Sensor::~NeutronVH400Sensor() {
 String NeutronVH400Sensor::readSensor() {
 
     int analog = analogRead(pin);
-    float sensorVoltage = analog*(3.3 / 4095);
+    float sensorVoltage = analog*(3.3 / 4096);
     float VWC; //Volumetric Water Content
 
     //Inputting voltage into piecewise linear functions that model VWC

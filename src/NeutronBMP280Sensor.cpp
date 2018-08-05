@@ -9,7 +9,7 @@ String NeutronBMP280Sensor::readSensor() {
     float temperature = sensor->readTemperature();
     float pressure = sensor->readPressure();
 
-    return String(temperature) + "," + String(pressure);
+    return String(round(temperature*10)/10.0) + "," + String(round(pressure*10)/10.0);
 
 };
 
