@@ -1,8 +1,9 @@
 /*
  * Project: Neutron Sensors
- * Description: Code for reading and sending temperature sensor data to the cloud
+ * Description: Code for reading and sensor data to the cloud
  * Author: Kai Nakamura
  * First Creation Date: 24 July 2017
+ * Last Updated: 5 August 2018
  * Status: Development
  */
 #include "Particle.h"
