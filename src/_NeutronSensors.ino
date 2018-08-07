@@ -8,7 +8,7 @@
  */
 #include "Particle.h"
 PRODUCT_ID(5694);
-PRODUCT_VERSION(5);
+PRODUCT_VERSION(6);
 
 #include "config.h"
 
@@ -64,7 +64,7 @@ void loop() {
 
         } else {
 
-            //Send get configuration request
+            //Send the configuration request
             requestedConfigUpdate = Particle.publish(String(GET_CONFIG_EVENT) + String(DEVICE_SEED), "", PRIVATE, WITH_ACK);
             if (!requestedConfigUpdate) {
                 delay(3000);
